@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+  web:
+    build:
+      context: .
+    networks:
+      - testnet
+    depends_on:
+      - postgres_db
+      - redis
+    ports:
+      - 8004:8004
+    volumes:
+      - ./app:/app
+    environment:
+      - POSTGRES_USER=fdml
+      - POSTGRES_PASSWORD=fdml1234
+      - POSTGRES_DB=click_db
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=postgres_db
+      - CLUSTER_THRESHOLD=0.015
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB_VALUE=0
+      - CONNECT_RETRY_VALUE=5
+
+  postgres_db:
+    image: postgres
+    restart: always
+    ports:
+      - 6433:5432
+    expose:
+      - 5432
+    shm_size: 1gb
+    networks:
+      - testnet
+    environment:
+      - POSTGRES_USER=fdml
+      - POSTGRES_PASSWORD=fdml1234
+      - POSTGRES_DB=click_db
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=postgres_db
+  
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - testnet
+
+networks:
+  testnet:
+    name: test_network
