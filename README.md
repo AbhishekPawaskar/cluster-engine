@@ -12,13 +12,14 @@
 ##  1. Usage:
 
 ###  a. Starting the Cluster-Engine:
-``````
+```
 #turn on docker desktop and type the following commands navigating within project folder
 
 user:/cluster-engine$  docker-compose up
 ```
 
 ###  b. Running test script
+
 ```
 user:/cluster-engine$  cd tests
 
