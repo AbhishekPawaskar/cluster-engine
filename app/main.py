@@ -42,14 +42,14 @@ async def save_click_and_predict_cluster_api(request: NewClickRequest,
     data = SavePredict(page_id=request.page_uuid.split('/')[1],
                         x=request.coordinates.x,
                         y=request.coordinates.y)
-    return control.save_and_predict(post_details=data, 
-                                    db=db_session)
+    return await control.save_and_predict(post_details=data, 
+                                            db=db_session)
 
 async def predict_cluster_api(request: NewClickRequest):
     data = JustPredict(page_id=request.page_uuid.split('/')[1],
                         x=request.coordinates.x,
                         y=request.coordinates.y)
-    return control.predict(post_details=data)
+    return await control.predict(post_details=data)
 
 
 # 3. Route for API calls

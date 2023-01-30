@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
                     force=True)
 
 
-def create_record(db: Session, post: TableStruct):
+async def create_record(db: Session, post: TableStruct):
     """
         This funtion is to create a new record in the Database Table
         Returns: Record ID or None

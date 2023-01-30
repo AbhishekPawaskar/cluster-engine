@@ -44,7 +44,7 @@ class ClusterController:
         except Exception as init_ERR:
             logging.error('INITIALIZATION ERROR',exc_info=init_ERR)
         
-    def retrieve_cluster_node_list(self, page_id:str) -> list:
+    async def retrieve_cluster_node_list(self, page_id:str) -> list:
         """retrives any cluster nodes for the page"""
         try:
             cluster_points = []
@@ -61,10 +61,10 @@ class ClusterController:
             cluster_points = []
             return cluster_points
     
-    def add_cluster_node_list(self, page_id:str, click_id:str) -> bool:
+    async def add_cluster_node_list(self, page_id:str, click_id:str) -> bool:
         """adds cluster nodes for the page"""
         try:
-            cluster_points = self.retrieve_cluster_node_list(page_id=page_id)
+            cluster_points = await self.retrieve_cluster_node_list(page_id=page_id)
             key = self.node_list_key_prefix+str(page_id)
             if (cluster_points != None) and (cluster_points != []):
                 cluster_points.append(click_id)
@@ -88,7 +88,7 @@ class ClusterController:
             logging.error('ADD CLUSTER NODE ERROR',exc_info=init_ERR)
             return False
     
-    def add_cluster_points(self, page_id:str, click_id:str, points:float) -> bool:
+    async def add_cluster_points(self, page_id:str, click_id:str, points:float) -> bool:
         """adds cluster node points for the page"""
         try:
             key = self.cluster_point_list_key_prefix1+str(page_id)+self.cluster_point_list_key_prefix2+str(click_id)
@@ -102,14 +102,14 @@ class ClusterController:
             logging.error('CLUSTER ADDITION ERROR',exc_info=init_ERR)
             return False
     
-    def retrieve_cluster_points_dict(self, cluster_node_list:list, page_id:str) -> dict:
+    async def retrieve_cluster_points_dict(self, cluster_node_list:list, page_id:str) -> dict:
         """retrives any cluster node points for the cluster nodes"""
         try:
             cluster_points_dict = {}
             if cluster_node_list != []:
                 for node in cluster_node_list:
                     key = self.cluster_point_list_key_prefix1+str(page_id)+self.cluster_point_list_key_prefix2+str(node)
-                    points = self.retrive_point(key=key)
+                    points = await self.retrive_point(key=key)
                     if points != None:
                         cluster_points_dict[str(node)] = points
                     else:
@@ -122,7 +122,7 @@ class ClusterController:
             cluster_points_dict = {}
             return cluster_points_dict
     
-    def retrive_point(self,key:str):
+    async def retrive_point(self,key:str):
         """retrives any cluster node's coordinates for the page"""
         try:
             points = self.redis_controller.client.get(name=key)
@@ -135,7 +135,7 @@ class ClusterController:
             logging.error('POINT RETRIVAL ERROR',exc_info=init_ERR)
             return None
     
-    def prepare_array(self, point_dict:dict, reference_point:list):
+    async def prepare_array(self, point_dict:dict, reference_point:list):
         """prepares the points of cluster nodes of the page for distance calculations"""
         try:
             reference = [reference_point]
@@ -153,7 +153,7 @@ class ClusterController:
             logging.error('ARRAY PREPARATION ERROR',exc_info=init_ERR)
             return None, None
 
-    def compute_distances(self, reference_array:np.array, points_array:np.array) -> list:
+    async def compute_distances(self, reference_array:np.array, points_array:np.array) -> list:
         """computes distance between query point & cluster noe points"""
         try:
             distances = []
@@ -166,10 +166,10 @@ class ClusterController:
             distances = []
             return distances
     
-    def find_cluster_index(self, page_id:str, click_id:str):
+    async def find_cluster_index(self, page_id:str, click_id:str):
         """finds the cluster id"""
         try:
-            node_list = self.retrieve_cluster_node_list(page_id=page_id)
+            node_list = await self.retrieve_cluster_node_list(page_id=page_id)
             if node_list == []:
                 return int(0)
             else:
@@ -179,10 +179,10 @@ class ClusterController:
         except Exception as init_ERR:
             return int(0)
     
-    def find_prediction_cluster_index(self, page_id:str, click_id:str):
+    async def find_prediction_cluster_index(self, page_id:str, click_id:str):
         """finds the cluster id for 'just predict' computation"""
         try:
-            node_list = self.retrieve_cluster_node_list(page_id=page_id)
+            node_list = await self.retrieve_cluster_node_list(page_id=page_id)
             if node_list == []:
                 return None
             else:
@@ -192,11 +192,11 @@ class ClusterController:
         except Exception as init_ERR:
             return None
     
-    def create_cluster(self, page_id:str, click_id:str, points:list) -> bool:
+    async def create_cluster(self, page_id:str, click_id:str, points:list) -> bool:
         """creates new cluster"""
         try:
-            node_ack = self.add_cluster_node_list(page_id=page_id,click_id=click_id)
-            point_ack = self.add_cluster_points(page_id=page_id,click_id=click_id, points=points)
+            node_ack = await self.add_cluster_node_list(page_id=page_id,click_id=click_id)
+            point_ack = await self.add_cluster_points(page_id=page_id,click_id=click_id, points=points)
             if node_ack and point_ack:
                 return True
             else:
@@ -205,18 +205,18 @@ class ClusterController:
             logging.error('CLUSTER CREATION ERROR',exc_info=init_ERR)
             return False
     
-    def find_cluster(self, page_id:str, points:list):
+    async def find_cluster(self, page_id:str, points:list):
         """searches for suitable cluster nodes for the page"""
         try:
-            node_list = self.retrieve_cluster_node_list(page_id=page_id)
+            node_list = await self.retrieve_cluster_node_list(page_id=page_id)
             if node_list == []:
                 return False, None
             else:
-                points_dict = self.retrieve_cluster_points_dict(cluster_node_list=node_list,page_id=page_id)
+                points_dict = await self.retrieve_cluster_points_dict(cluster_node_list=node_list,page_id=page_id)
                 if (points_dict != {}) and (points_dict != None):
-                    final_reference, final_array = self.prepare_array(point_dict=points_dict,reference_point=points)
+                    final_reference, final_array = await self.prepare_array(point_dict=points_dict,reference_point=points)
                     if (final_reference != None) and (final_array != None):
-                        distances = self.compute_distances(reference_array=final_reference, points_array=final_array)
+                        distances = await self.compute_distances(reference_array=final_reference, points_array=final_array)
                         if distances != []:
                             arrayed_distance = np.array(distances)
                             thresholded_distances = np.where(arrayed_distance >= self.cluster_threshold, 0, 1)
