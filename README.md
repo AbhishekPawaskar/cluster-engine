@@ -1,4 +1,4 @@
-# Assignment Submission - Abhishek Pawaskar
+# Sample Microservice Structure
 
 #### `Important Note`: The documents mentioned of API endpoints `/save_click_and_predict_cluster` & `/predict_cluster` respectively. But the test cases had `/new_click` & `/predict_click`. Hence provisions for all four endpoints are made. Rest of the details are mentioned in the pdf document titled `apprach.pdf` in this repository. 
 
